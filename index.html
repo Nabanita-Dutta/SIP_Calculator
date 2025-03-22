@@ -7,177 +7,196 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #ffffff;
+            background: white;
             margin: 0;
             padding: 0;
         }
-
         .container {
             max-width: 500px;
-            margin: 100px auto 30px auto;
-            padding: 30px;
-            border-radius: 10px;
-            background-color: #ffffff;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
             position: relative;
         }
-
         .logo {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 100px;
-            height: auto;
+            width: 90px;
         }
-
         h2 {
             text-align: center;
-            margin-bottom: 40px;
-            font-size: 26px;
+            margin-bottom: 30px;
+            margin-top: 60px; /* Added space between header and logo */
         }
-
-        label {
-            display: block;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
-        input[type="number"], input[type="text"] {
+        input, button {
             width: 100%;
             padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
         }
-
-        .slider-container {
-            margin-top: 20px;
-        }
-
-        .slider-label-value {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="range"] {
+        input[type=range] {
             width: 100%;
         }
-
         button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 25px;
             background-color: #007bff;
             color: white;
             border: none;
             font-size: 16px;
-            border-radius: 5px;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
-        .result {
-            background-color: #ffffcc;
-            padding: 20px;
-            margin-top: 25px;
-            border-radius: 5px;
-            font-weight: bold;
+        .output {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
         }
-
-        @media(max-width: 600px) {
+        .output p {
+            margin: 8px 0;
+        }
+        .rate-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rate-input-container input[type="number"] {
+            width: 70px;
+        }
+        @media(max-width: 500px) {
+            .container {
+                margin: 20px;
+                padding: 15px;
+            }
             .logo {
                 width: 70px;
-            }
-            .container {
-                margin: 120px 10px 30px 10px;
+                top: 15px;
+                right: 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="Logo.png" class="logo" alt="Logo">
+        <img src="Logo.png" alt="Logo" class="logo">
         <h2>Know Your SIP</h2>
+
         <label>Corpus already accumulated (in Lakhs)</label>
         <input type="number" id="corpus" placeholder="e.g., 10">
 
         <label>Yearly Step-up rate of SIP (%)</label>
-        <input type="number" id="stepup" placeholder="e.g., 10">
+        <input type="number" id="stepUp" placeholder="e.g., 10">
 
-        <div class="slider-container">
-            <div class="slider-label-value">
-                <span>Expected Rate of Return (%)</span>
-                <span id="returnRateValue">12%</span>
-            </div>
-            <input type="range" min="5" max="20" value="12" id="returnRate" step="0.1" oninput="updateSliderValue()">
+        <label>Expected Rate of Return (%)</label>
+        <div class="rate-input-container">
+            <input type="number" id="rateInput" placeholder="e.g., 12" step="0.1" min="0" max="20">
+            <input type="range" min="0" max="20" step="0.1" id="rateSlider">
         </div>
 
         <label>Enter your Goal Amount (in Crore)</label>
-        <input type="number" id="goalAmount" placeholder="e.g., 1">
+        <input type="number" id="goal" placeholder="e.g., 1">
 
         <label>Expected time of Goal completion (in years)</label>
         <input type="number" id="years" placeholder="e.g., 20">
 
         <button onclick="calculateSIP()">Calculate Monthly SIP Required</button>
 
-        <div class="result" id="result"></div>
+        <div class="output" id="output" style="display: none;">
+            <p><strong>Monthly SIP Investment Required:</strong> ₹<span id="sipRequired"></span></p>
+            <p><strong>Total Investment:</strong> ₹<span id="totalInvestment"></span></p>
+            <p><strong>Total Value Achieved:</strong> ₹<span id="totalValue"></span></p>
+            <p id="resultMsg"></p>
+        </div>
     </div>
 
     <script>
-        function updateSliderValue() {
-            document.getElementById('returnRateValue').innerText = document.getElementById('returnRate').value + "%";
-        }
+        const rateSlider = document.getElementById('rateSlider');
+        const rateInput = document.getElementById('rateInput');
+
+        rateSlider.addEventListener('input', () => {
+            rateInput.value = rateSlider.value;
+        });
+
+        rateInput.addEventListener('input', () => {
+            rateSlider.value = rateInput.value;
+        });
 
         function calculateSIP() {
-            let corpus = parseFloat(document.getElementById('corpus').value) * 100000; // in rupees
-            let stepup = parseFloat(document.getElementById('stepup').value) / 100;
-            let r = parseFloat(document.getElementById('returnRate').value) / 1200; // monthly rate
-            let goalAmount = parseFloat(document.getElementById('goalAmount').value) * 10000000; // crore to rupees
-            let n = parseInt(document.getElementById('years').value) * 12; // months
+            const corpus = parseFloat(document.getElementById('corpus').value) * 100000; // converting lakhs to rupees
+            const stepUp = parseFloat(document.getElementById('stepUp').value) / 100;
+            const rate = parseFloat(rateInput.value) / 100 / 12; // monthly rate
+            const goal = parseFloat(document.getElementById('goal').value) * 10000000; // crore to rupees
+            const years = parseInt(document.getElementById('years').value);
+            const months = years * 12;
 
-            let monthlySIP = 0;
-            let diff = 1, increment = 100, attempts = 0;
-
-            // Iterative approximation
-            while (diff > 1 && attempts < 5000) {
-                let fv = corpus;
-                let sip = monthlySIP;
-                for (let i = 0; i < n; i++) {
-                    if (i % 12 === 0 && i > 0) sip += sip * stepup;
-                    fv = fv * (1 + r) + sip;
+            // SIP Calculation logic (approximation)
+            let sip = 0;
+            let achievedValue = corpus;
+            for (let m = 1; m <= months; m++) {
+                achievedValue = achievedValue * (1 + rate);
+                achievedValue += sip;
+                if (m % 12 === 0) {
+                    sip = sip * (1 + stepUp);
                 }
-                diff = goalAmount - fv;
-                if (diff > 0) monthlySIP += increment;
-                else monthlySIP -= increment / 2;
-                attempts++;
             }
 
-            // Final calculation
-            let totalInvestment = 0, fvFinal = corpus, sipAmount = monthlySIP;
-            for (let i = 0; i < n; i++) {
-                if (i % 12 === 0 && i > 0) sipAmount += sipAmount * stepup;
-                totalInvestment += sipAmount;
-                fvFinal = fvFinal * (1 + r) + sipAmount;
+            // Iterative calculation to find required SIP:
+            let low = 0, high = 1000000, mid;
+            for (let i = 0; i < 30; i++) {
+                mid = (low + high) / 2;
+                achievedValue = corpus;
+                let currentSip = mid;
+                for (let m = 1; m <= months; m++) {
+                    achievedValue = achievedValue * (1 + rate);
+                    achievedValue += currentSip;
+                    if (m % 12 === 0) {
+                        currentSip = currentSip * (1 + stepUp);
+                    }
+                }
+                if (achievedValue < goal) {
+                    low = mid;
+                } else {
+                    high = mid;
+                }
             }
 
-            let shortfall = goalAmount - fvFinal;
-            let resultText = `
-                Monthly SIP Required: ₹${Math.round(monthlySIP).toLocaleString()}<br>
-                Total Investment: ₹${Math.round(totalInvestment).toLocaleString()}<br>
-                Total Value: ₹${Math.round(fvFinal).toLocaleString()}<br>
-            `;
+            // Calculate results:
+            const sipRequired = Math.round(mid);
+            let totalInvestment = 0;
+            let currentSip = sipRequired;
+            for (let y = 1; y <= years; y++) {
+                totalInvestment += currentSip * 12;
+                currentSip = currentSip * (1 + stepUp);
+            }
+
+            achievedValue = corpus;
+            currentSip = sipRequired;
+            for (let m = 1; m <= months; m++) {
+                achievedValue = achievedValue * (1 + rate);
+                achievedValue += currentSip;
+                if (m % 12 === 0) {
+                    currentSip = currentSip * (1 + stepUp);
+                }
+            }
+
+            const shortfall = goal - achievedValue;
+            document.getElementById('sipRequired').innerText = sipRequired.toLocaleString();
+            document.getElementById('totalInvestment').innerText = Math.round(totalInvestment).toLocaleString();
+            document.getElementById('totalValue').innerText = Math.round(achievedValue).toLocaleString();
 
             if (shortfall > 0) {
-                resultText += `Shortfall from target: ₹${Math.round(shortfall).toLocaleString()}`;
+                document.getElementById('resultMsg').innerHTML = `<strong>Shortfall from target:</strong> ₹${Math.round(shortfall).toLocaleString()}`;
             } else {
-                resultText += `Achieved Target with Excess: ₹${Math.abs(Math.round(shortfall)).toLocaleString()}`;
+                document.getElementById('resultMsg').innerHTML = `<strong>Target Achieved with Excess:</strong> ₹${Math.abs(Math.round(shortfall)).toLocaleString()}`;
             }
 
-            document.getElementById('result').innerHTML = resultText;
+            document.getElementById('output').style.display = 'block';
         }
     </script>
 </body>
