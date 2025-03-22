@@ -1,203 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Know Your SIP</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: white;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 500px;
-            margin: 50px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-        .logo {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 90px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            margin-top: 60px; /* Added space between header and logo */
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-        input[type=range] {
-            width: 100%;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .output {
-            background-color: #f9f9f9;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-        }
-        .output p {
-            margin: 8px 0;
-        }
-        .rate-input-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .rate-input-container input[type="number"] {
-            width: 70px;
-        }
-        @media(max-width: 500px) {
-            .container {
-                margin: 20px;
-                padding: 15px;
-            }
-            .logo {
-                width: 70px;
-                top: 15px;
-                right: 15px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Know Your SIP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 10px;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      text-align: left;
+      margin-top: 40px;
+    }
+
+    img.logo {
+      width: 180px;
+    }
+
+    input, button, .output {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .output-container {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #ffffcc;
+      border-radius: 5px;
+    }
+
+    @media(max-width: 500px) {
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      img.logo {
+        margin-top: 10px;
+        width: 150px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <img src="Logo.png" alt="Logo" class="logo">
-        <h2>Know Your SIP</h2>
-
-        <label>Corpus already accumulated (in Lakhs)</label>
-        <input type="number" id="corpus" placeholder="e.g., 10">
-
-        <label>Yearly Step-up rate of SIP (%)</label>
-        <input type="number" id="stepUp" placeholder="e.g., 10">
-
-        <label>Expected Rate of Return (%)</label>
-        <div class="rate-input-container">
-            <input type="number" id="rateInput" placeholder="12" step="0.1" min="0" max="20">
-            <input type="range" min="0" max="20" step="0.1" id="rateSlider">
-        </div>
-
-        <label>Enter your Goal Amount (in Crore)</label>
-        <input type="number" id="goal" placeholder="e.g., 1">
-
-        <label>Expected time of Goal completion (in years)</label>
-        <input type="number" id="years" placeholder="e.g., 20">
-
-        <button onclick="calculateSIP()">Calculate Monthly SIP Required</button>
-
-        <div class="output" id="output" style="display: none;">
-            <p><strong>Monthly SIP Investment Required:</strong> ₹<span id="sipRequired"></span></p>
-            <p><strong>Total Investment:</strong> ₹<span id="totalInvestment"></span></p>
-            <p><strong>Total Value Achieved:</strong> ₹<span id="totalValue"></span></p>
-            <p id="resultMsg"></p>
-        </div>
+  <div class="container">
+    <div class="header-container">
+      <h2>Know Your SIP</h2>
+      <img src="Logo.png" class="logo" alt="Logo">
     </div>
 
-    <script>
-        const rateSlider = document.getElementById('rateSlider');
-        const rateInput = document.getElementById('rateInput');
+    <label>Corpus already accumulated (in Lakhs)</label>
+    <input type="number" id="corpus" placeholder="e.g., 10">
 
-        rateSlider.addEventListener('input', () => {
-            rateInput.value = rateSlider.value;
-        });
+    <label>Yearly Step-up rate of SIP (%)</label>
+    <input type="number" id="stepUpRate" placeholder="e.g., 10">
 
-        rateInput.addEventListener('input', () => {
-            rateSlider.value = rateInput.value;
-        });
+    <label>Expected Rate of Return (%) <span id="rateValue">12%</span></label>
+    <div class="slider-container">
+      <input type="range" id="returnRate" min="1" max="20" value="12" step="0.1" oninput="updateRateValue()">
+    </div>
 
-        function calculateSIP() {
-            const corpus = parseFloat(document.getElementById('corpus').value) * 100000; // converting lakhs to rupees
-            const stepUp = parseFloat(document.getElementById('stepUp').value) / 100;
-            const rate = parseFloat(rateInput.value) / 100 / 12; // monthly rate
-            const goal = parseFloat(document.getElementById('goal').value) * 10000000; // crore to rupees
-            const years = parseInt(document.getElementById('years').value);
-            const months = years * 12;
+    <label>Enter your Goal Amount (in Crore)</label>
+    <input type="number" id="goalAmount" placeholder="e.g., 1">
 
-            // SIP Calculation logic (approximation)
-            let sip = 0;
-            let achievedValue = corpus;
-            for (let m = 1; m <= months; m++) {
-                achievedValue = achievedValue * (1 + rate);
-                achievedValue += sip;
-                if (m % 12 === 0) {
-                    sip = sip * (1 + stepUp);
-                }
-            }
+    <label>Expected time of Goal completion (in years)</label>
+    <input type="number" id="timeFrame" placeholder="e.g., 20">
 
-            // Iterative calculation to find required SIP:
-            let low = 0, high = 1000000, mid;
-            for (let i = 0; i < 30; i++) {
-                mid = (low + high) / 2;
-                achievedValue = corpus;
-                let currentSip = mid;
-                for (let m = 1; m <= months; m++) {
-                    achievedValue = achievedValue * (1 + rate);
-                    achievedValue += currentSip;
-                    if (m % 12 === 0) {
-                        currentSip = currentSip * (1 + stepUp);
-                    }
-                }
-                if (achievedValue < goal) {
-                    low = mid;
-                } else {
-                    high = mid;
-                }
-            }
+    <button onclick="calculateSIP()">Calculate Monthly SIP Required</button>
 
-            // Calculate results:
-            const sipRequired = Math.round(mid);
-            let totalInvestment = 0;
-            let currentSip = sipRequired;
-            for (let y = 1; y <= years; y++) {
-                totalInvestment += currentSip * 12;
-                currentSip = currentSip * (1 + stepUp);
-            }
+    <div class="output-container" id="output"></div>
+  </div>
 
-            achievedValue = corpus;
-            currentSip = sipRequired;
-            for (let m = 1; m <= months; m++) {
-                achievedValue = achievedValue * (1 + rate);
-                achievedValue += currentSip;
-                if (m % 12 === 0) {
-                    currentSip = currentSip * (1 + stepUp);
-                }
-            }
+  <script>
+    function updateRateValue() {
+      document.getElementById('rateValue').innerText = document.getElementById('returnRate').value + '%';
+    }
 
-            const shortfall = goal - achievedValue;
-            document.getElementById('sipRequired').innerText = sipRequired.toLocaleString();
-            document.getElementById('totalInvestment').innerText = Math.round(totalInvestment).toLocaleString();
-            document.getElementById('totalValue').innerText = Math.round(achievedValue).toLocaleString();
+    function calculateSIP() {
+      const corpus = parseFloat(document.getElementById('corpus').value) * 100000;
+      const stepUpRate = parseFloat(document.getElementById('stepUpRate').value) / 100;
+      const rate = parseFloat(document.getElementById('returnRate').value) / 100;
+      const goalAmount = parseFloat(document.getElementById('goalAmount').value) * 10000000;
+      const timeFrame = parseFloat(document.getElementById('timeFrame').value);
 
-            if (shortfall > 0) {
-                document.getElementById('resultMsg').innerHTML = `<strong>Shortfall from target:</strong> ₹${Math.round(shortfall).toLocaleString()}`;
-            } else {
-                document.getElementById('resultMsg').innerHTML = `<strong>Target Achieved with Excess:</strong> ₹${Math.abs(Math.round(shortfall)).toLocaleString()}`;
-            }
+      const monthlyRate = Math.pow(1 + rate, 1 / 12) - 1;
+      const n = timeFrame * 12;
 
-            document.getElementById('output').style.display = 'block';
-        }
-    </script>
+      let sip = (goalAmount - corpus * Math.pow(1 + monthlyRate, n)) / ((Math.pow(1 + monthlyRate, n) - 1) * (1 + monthlyRate) / monthlyRate);
+
+      if (stepUpRate > 0) {
+        let stepFactor = (Math.pow(1 + stepUpRate, timeFrame) - 1) / stepUpRate;
+        sip = sip / stepFactor;
+      }
+
+      const totalInvestment = sip * 12 * timeFrame;
+      const futureValue = corpus * Math.pow(1 + monthlyRate, n) + sip * ((Math.pow(1 + monthlyRate, n) - 1) * (1 + monthlyRate) / monthlyRate);
+
+      const shortfallOrExcess = goalAmount - futureValue;
+      const shortfallMessage = shortfallOrExcess > 0 
+        ? `Shortfall from target: ₹${(shortfallOrExcess / 100000).toFixed(2)} lakh`
+        : `Achieved target with excess: ₹${Math.abs(shortfallOrExcess / 100000).toFixed(2)} lakh`;
+
+      document.getElementById('output').innerHTML = `
+        <strong>Monthly SIP Investment required:</strong> ₹${sip.toFixed(0)}<br>
+        <strong>Total Investment (in Cr):</strong> ₹${(totalInvestment / 10000000).toFixed(2)}<br>
+        <strong>Total Value Achieved (in Cr):</strong> ₹${(futureValue / 10000000).toFixed(2)}<br>
+        <strong>${shortfallMessage}</strong>
+      `;
+    }
+  </script>
 </body>
 </html>
