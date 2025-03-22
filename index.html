@@ -1,171 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIP Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 400px;
-      margin: 30px auto;
-      background-color: #f7f7f7;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-      position: relative;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .header h2 {
-      margin: 0;
-    }
-    .header img {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 60px;
-      height: auto;
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    input[type=range] {
-      width: 100%;
-    }
-    .result {
-      background-color: #e6ffe6;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .slider-value {
-      text-align: right;
-      margin-top: -10px;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    @media only screen and (max-width: 500px) {
-      .container {
-        margin: 20px;
-      }
-      .header img {
-        width: 50px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Know Your SIP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            position: relative;
+        }
+        h1 img {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 60px;
+            height: 60px;
+        }
+        input[type="number"], input[type="text"], input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 20px 0;
+            box-sizing: border-box;
+        }
+        label {
+            font-weight: bold;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            background-color: #f3f3f3;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        @media (max-width: 600px) {
+            h1 img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Know Your SIP <img src="logo.png" alt="Logo"></h1>
+        <label>Corpus already accumulated (Rs. in Lakhs):</label>
+        <input type="number" id="corpus" placeholder="Example: 10">
 
-<div class="container">
-  <div class="header">
-    <h2>Know your SIP Required</h2>
-    <img src="logo.png" alt="Logo">
-  </div>
-  
-  <label>Corpus already accumulated (in ₹ crore):</label>
-  <input type="number" id="corpus" step="0.01" placeholder="e.g. 0.5">
+        <label>Yearly Step-up Rate of SIP (%):</label>
+        <input type="number" id="stepup" placeholder="Example: 10">
 
-  <label>Yearly Step-up rate of SIP (%):</label>
-  <input type="number" id="stepup" placeholder="e.g. 10">
+        <label>Expected Rate of Return (%): <span id="rateValue">10</span>%</label>
+        <input type="range" min="5" max="20" value="10" id="returnRate" oninput="rateValue.innerText=this.value">
 
-  <label>Expected Rate of Return (%):</label>
-  <input type="range" min="5" max="20" value="12" id="returnRate">
-  <div class="slider-value">Return Rate: <span id="rateValue">12</span>%</div>
+        <label>Enter Your Goal Amount (in Crores):</label>
+        <input type="number" id="goal" placeholder="Example: 1">
 
-  <label>Enter Target Value (in ₹ crore):</label>
-  <input type="number" id="target" step="0.01" placeholder="e.g. 1">
+        <label>Expected Time of Goal Completion (in Years):</label>
+        <input type="number" id="years" placeholder="Example: 20">
 
-  <label>Time to get to your target (in years):</label>
-  <input type="number" id="years" placeholder="e.g. 20">
+        <button onclick="calculateSIP()">Calculate Monthly SIP Required</button>
 
-  <button onclick="calculateSIP()">Calculate</button>
+        <div class="result" id="result"></div>
+    </div>
 
-  <div class="result" id="result" style="display:none;">
-    <p><strong>Monthly SIP Required:</strong> ₹<span id="monthlySip"></span></p>
-    <p><strong>Total Investment:</strong> ₹<span id="totalInvestment"></span></p>
-    <p><strong>Total Value at end:</strong> ₹<span id="finalValue"></span></p>
-    <p id="shortfallMessage"></p>
-  </div>
-</div>
+    <script>
+        function calculateSIP() {
+            let corpus = parseFloat(document.getElementById('corpus').value) * 100000; 
+            let stepUpRate = parseFloat(document.getElementById('stepup').value) / 100;
+            let returnRate = parseFloat(document.getElementById('returnRate').value) / 100;
+            let goal = parseFloat(document.getElementById('goal').value) * 10000000; 
+            let years = parseFloat(document.getElementById('years').value);
 
-<script>
-  document.getElementById("returnRate").addEventListener("input", function() {
-    document.getElementById("rateValue").innerText = this.value;
-  });
+            let monthlyRate = returnRate / 12;
+            let totalMonths = years * 12;
 
-  function calculateSIP() {
-    const corpus = parseFloat(document.getElementById("corpus").value) * 10000000; // crore to rupees
-    const stepUpRate = parseFloat(document.getElementById("stepup").value) / 100;
-    const expectedReturn = parseFloat(document.getElementById("returnRate").value) / 100;
-    const targetValue = parseFloat(document.getElementById("target").value) * 10000000; // crore to rupees
-    const years = parseInt(document.getElementById("years").value);
-    
-    let monthlySIP = 1000;
-    let increment = 1000;
-    let finalValue = 0;
+            // Approx SIP calculation using goal formula with step-up and corpus
+            // This is an approximate iterative solution:
+            let sip = 1000;
+            let achievedGoal = 0;
+            while (achievedGoal < goal) {
+                achievedGoal = corpus;
+                let monthlySIP = sip;
+                for (let year = 1; year <= years; year++) {
+                    for (let month = 1; month <= 12; month++) {
+                        achievedGoal = achievedGoal * (1 + monthlyRate) + monthlySIP;
+                    }
+                    monthlySIP *= (1 + stepUpRate);
+                }
+                if (achievedGoal < goal) {
+                    sip += 100;
+                }
+            }
 
-    // Calculate required SIP using an approximate iterative method
-    while (true) {
-      finalValue = corpus;
-      let currentSIP = monthlySIP;
-      for (let year = 1; year <= years; year++) {
-        for (let month = 1; month <= 12; month++) {
-          finalValue = finalValue * (1 + expectedReturn / 12) + currentSIP;
+            let totalInvestment = 0;
+            let monthlySIP = sip;
+            for (let year = 1; year <= years; year++) {
+                for (let month = 1; month <= 12; month++) {
+                    totalInvestment += monthlySIP;
+                }
+                monthlySIP *= (1 + stepUpRate);
+            }
+
+            let shortfall = achievedGoal - goal;
+            let status = shortfall >= 0 
+                ? `<strong>Achieved Target</strong> with excess ₹${shortfall.toFixed(0)}`
+                : `<strong>Shortfall from target</strong>: ₹${Math.abs(shortfall).toFixed(0)}`;
+
+            document.getElementById('result').innerHTML = `
+                <p><strong>Monthly SIP Investment required:</strong> ₹${sip.toFixed(0)}</p>
+                <p><strong>Total Investment:</strong> ₹${totalInvestment.toFixed(0)}</p>
+                <p><strong>Total Value at Goal Completion:</strong> ₹${achievedGoal.toFixed(0)}</p>
+                <p>${status}</p>
+            `;
         }
-        currentSIP = currentSIP * (1 + stepUpRate);
-      }
-      if (finalValue >= targetValue) break;
-      monthlySIP += increment;
-    }
-
-    // Calculate final investment
-    let totalInvestment = 0;
-    let currentSIP = monthlySIP;
-    for (let year = 1; year <= years; year++) {
-      totalInvestment += currentSIP * 12;
-      currentSIP *= (1 + stepUpRate);
-    }
-
-    const shortfall = targetValue - finalValue;
-    const achievedExcess = finalValue - targetValue;
-
-    document.getElementById("monthlySip").innerText = Math.round(monthlySIP);
-    document.getElementById("totalInvestment").innerText = Math.round(totalInvestment).toLocaleString();
-    document.getElementById("finalValue").innerText = Math.round(finalValue).toLocaleString();
-    
-    if (shortfall > 0) {
-      document.getElementById("shortfallMessage").innerHTML = `<strong>Shortfall from target:</strong> ₹${Math.round(shortfall).toLocaleString()}`;
-    } else {
-      document.getElementById("shortfallMessage").innerHTML = `<strong>Achieved Target:</strong> Excess ₹${Math.round(achievedExcess).toLocaleString()}`;
-    }
-    
-    document.getElementById("result").style.display = "block";
-  }
-</script>
-
+    </script>
 </body>
 </html>
