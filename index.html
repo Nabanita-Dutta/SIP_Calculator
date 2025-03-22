@@ -162,7 +162,7 @@
             const totalInvestment = (totalSipInvested + corpus) / 10000000; // in Crores
             const excessGain = (goal - (totalSipInvested + corpus)) / 10000000; // in Crores
 
-            resultDiv.innerHTML = `<strong>Monthly SIP Required (1st Month):</strong> ₹${sipGuess.toFixed(0)} <br>
+            resultDiv.innerHTML = `<strong>Monthly SIP Required :</strong> ₹${sipGuess.toFixed(0)} <br>
                 <strong>Total Investment (Lumpsum + SIP):</strong> ₹${totalInvestment.toFixed(2)} Cr <br>
                 <strong>Total Target Value:</strong> ₹${(goal / 10000000).toFixed(2)} Cr <br>
                 <strong>Excess gain:</strong> ₹${excessGain.toFixed(2)} Cr`;
