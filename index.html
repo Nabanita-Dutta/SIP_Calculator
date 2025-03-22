@@ -75,6 +75,7 @@
         <img src="Logo.png" alt="Logo" class="logo">
         <h2>Know your SIP</h2>
         <div class="error" id="error"></div>
+        
         <label>Corpus already accumulated (Rs. in Lakhs):</label>
         <input type="number" id="corpus">
 
@@ -93,6 +94,7 @@
         <button onclick="calculateSIP()">Calculate Monthly SIP Required</button>
 
         <div class="output" id="result"></div>
+        <small>Note: This calculator assumes a constant monthly SIP and factors in your existing corpus. Yearly step-up is not factored into the current formula but can be included in future versions.</small>
     </div>
 
     <script>
@@ -101,10 +103,10 @@
         }
 
         function calculateSIP() {
-            const corpus = parseFloat(document.getElementById('corpus').value);
-            const stepup = parseFloat(document.getElementById('stepup').value);
+            const corpus = parseFloat(document.getElementById('corpus').value); // In Lakhs
+            const stepup = parseFloat(document.getElementById('stepup').value); // Not used in this version
             const rate = parseFloat(document.getElementById('rate').value);
-            const goal = parseFloat(document.getElementById('goal').value);
+            const goal = parseFloat(document.getElementById('goal').value); // In Crores
             const years = parseFloat(document.getElementById('years').value);
             const errorDiv = document.getElementById('error');
             const resultDiv = document.getElementById('result');
@@ -119,20 +121,28 @@
 
             const monthlyRate = rate / 12 / 100;
             const months = years * 12;
-            const futureValueGoal = goal * 10000000 - (corpus * 100000); // convert goal to Rs and subtract current corpus
 
-            // Monthly SIP formula
+            // Future value contributed by the existing corpus:
+            const corpusFV = corpus * 100000 * Math.pow(1 + monthlyRate, months);
+
+            // Future value required from SIP contributions:
+            const futureValueGoal = goal * 10000000 - corpusFV;
+
+            // SIP calculation (standard formula for FV of SIP)
             let monthlySIP = futureValueGoal * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
 
-            const sipInvestment = monthlySIP * months;
-            const corpusInvestment = corpus * 100000;
-            const totalInvestment = sipInvestment + corpusInvestment;
-            const excessGain = ((goal * 10000000) - totalInvestment) / 10000000;
+            // Total SIP investment over the period:
+            const totalSIPInvestment = (monthlySIP * months) / 10000000; // in Crores
+
+            // Total investment (corpus + SIP investment):
+            const totalInvestment = (corpus / 100) + totalSIPInvestment; // corpus (in Crores) + SIP (in Crores)
+
+            const excessGain = ((goal * 10000000) - (monthlySIP * months + corpus * 100000)) / 10000000; // in Crores
 
             resultDiv.innerHTML = `<strong>Monthly SIP Required:</strong> ₹${monthlySIP.toFixed(0)} <br>
-                <strong>Total Investment (SIP + Corpus):</strong> ₹${(totalInvestment / 10000000).toFixed(2)} Cr <br>
+                <strong>Total Investment (Corpus + SIP):</strong> ₹${totalInvestment.toFixed(2)} Cr <br>
                 <strong>Total Target Value:</strong> ₹${goal.toFixed(2)} Cr <br>
-                <strong>Excess gain over Investment:</strong> ₹${excessGain.toFixed(2)} Cr`;
+                <strong>Excess Gain:</strong> ₹${excessGain.toFixed(2)} Cr`;
         }
     </script>
 </body>
