@@ -1,160 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIP Goal Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-        }
-        .container {
-            max-width: 500px;
-            margin: 50px auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin: 15px 0 5px;
-        }
-        input, #rateValue {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .slider-container {
-            display: flex;
-            align-items: center;
-        }
-        input[type="range"] {
-            width: 85%;
-            margin-right: 10px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            margin-top: 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .output {
-            margin-top: 20px;
-            background: #f1f1f1;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .highlight {
-            background-color: yellow;
-            padding: 5px;
-            border-radius: 3px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIP + Lumpsum Target Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+    }
+    .calculator {
+      background: #fff;
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px #ddd;
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      background-color: #e7ffe7;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+    .slider-value {
+      font-weight: bold;
+      color: #007bff;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h2>SIP Goal Calculator</h2>
-    <label>Lumpsum Investment (Rs.)</label>
-    <input type="number" id="lumpsum" placeholder="Enter lumpsum amount">
-    
-    <label>SIP - Yearly Step up rate (%)</label>
-    <input type="number" id="stepup" placeholder="Enter step up rate in %">
+  <div class="calculator">
+    <h2>SIP + Lumpsum Target Calculator</h2>
+    <label for="lumpsum">Lumpsum Investment (₹)</label>
+    <input type="number" id="lumpsum" placeholder="Enter lumpsum investment">
 
-    <label>Expected Rate of Return (%)</label>
-    <div class="slider-container">
-        <input type="range" min="5" max="20" value="12" id="rate" step="0.1">
-        <span id="rateValue">12%</span>
-    </div>
+    <label for="stepup">SIP - Yearly Step-up Rate (%)</label>
+    <input type="number" id="stepup" placeholder="Yearly step-up rate %">
 
-    <label>Enter Target Value (Rs.)</label>
-    <input type="number" id="target" placeholder="Enter target corpus">
+    <label for="returnRate">Expected Rate of Return (%): <span id="rateVal" class="slider-value">10</span>%</label>
+    <input type="range" id="returnRate" min="5" max="20" step="0.1" value="10" oninput="rateVal.innerText=this.value">
+
+    <label for="target">Enter Target Value (₹)</label>
+    <input type="number" id="target" placeholder="Enter target amount">
+
+    <label for="time">Time to get to your target (years)</label>
+    <input type="number" id="time" placeholder="Enter number of years">
 
     <button onclick="calculateSIP()">Calculate</button>
 
-    <div class="output" id="output" style="display:none;">
-        <p><strong>Monthly SIP Investment Required:</strong> <span class="highlight" id="sipRequired"></span></p>
-        <p><strong>Total Investment (Lumpsum + SIP):</strong> <span id="totalInvestment"></span></p>
-        <p><strong>Total Value at the end:</strong> <span id="totalValue"></span></p>
-        <p id="shortfallOrExcess"></p>
-    </div>
-</div>
+    <div class="result" id="result" style="display:none;"></div>
+  </div>
 
-<script>
-    const rateSlider = document.getElementById("rate");
-    const rateValue = document.getElementById("rateValue");
-
-    rateSlider.addEventListener("input", function() {
-        rateValue.textContent = rateSlider.value + "%";
-    });
-
+  <script>
     function calculateSIP() {
-        const lumpsum = parseFloat(document.getElementById("lumpsum").value) || 0;
-        const stepup = parseFloat(document.getElementById("stepup").value) / 100 || 0;
-        const rate = parseFloat(document.getElementById("rate").value) / 100;
-        const target = parseFloat(document.getElementById("target").value);
+      const lumpsum = parseFloat(document.getElementById('lumpsum').value) || 0;
+      const stepup = parseFloat(document.getElementById('stepup').value) / 100 || 0;
+      const returnRate = parseFloat(document.getElementById('returnRate').value) / 100;
+      const target = parseFloat(document.getElementById('target').value);
+      const time = parseInt(document.getElementById('time').value);
 
-        if (target <= 0) {
-            alert("Please enter a valid target amount.");
-            return;
+      if (!target || !time) {
+        alert('Please enter target value and time.');
+        return;
+      }
+
+      let monthlySIP = 1000;  // starting guess
+      let futureValue, totalInvestment;
+
+      // Iteratively find SIP required
+      while (true) {
+        let fv = lumpsum * Math.pow(1 + returnRate, time);
+        let sipFv = 0;
+        let yearlySIP = monthlySIP * 12;
+
+        for (let year = 1; year <= time; year++) {
+          sipFv += yearlySIP * Math.pow(1 + returnRate, (time - year + 1));
+          yearlySIP = yearlySIP * (1 + stepup);
         }
 
-        let monthlySIP = 1000;
-        let found = false;
-        let years = 30; // assume 30 years max period for goal planning
-        let finalAmount = 0;
+        futureValue = fv + sipFv;
 
-        // Iteratively find required SIP
-        while (monthlySIP < 200000 && !found) {
-            let sip = monthlySIP;
-            finalAmount = lumpsum * Math.pow((1 + rate), years);
-            let yearlySIP = sip * 12;
-
-            for (let i = 1; i <= years; i++) {
-                finalAmount += yearlySIP * Math.pow((1 + rate), (years - i));
-                yearlySIP *= (1 + stepup);
-            }
-
-            if (finalAmount >= target) {
-                found = true;
-            } else {
-                monthlySIP += 100; // increment in small steps to reach the solution
-            }
+        if (futureValue >= target) {
+          totalInvestment = lumpsum + (monthlySIP * 12 * time);
+          break;
         }
 
-        let totalSIPInvestment = 0;
-        let sip = monthlySIP;
-        let yearlySIP = sip * 12;
-        for (let i = 1; i <= years; i++) {
-            totalSIPInvestment += yearlySIP;
-            yearlySIP *= (1 + stepup);
+        monthlySIP += 100;  // increment guess
+      }
+
+      let shortfallOrExcess = futureValue - target;
+      const resultBox = document.getElementById('result');
+      resultBox.innerHTML = `
+        <h3>Results:</h3>
+        <p><strong>Monthly SIP Required:</strong> ₹${monthlySIP.toFixed(0)}</p>
+        <p><strong>Total Investment:</strong> ₹${totalInvestment.toFixed(0)}</p>
+        <p><strong>Total Value:</strong> ₹${futureValue.toFixed(0)}</p>
+        ${shortfallOrExcess < 0
+          ? `<p style="color:red;"><strong>Shortfall:</strong> ₹${Math.abs(shortfallOrExcess.toFixed(0))}</p>`
+          : `<p style="color:green;"><strong>Achieved Target! Excess:</strong> ₹${shortfallOrExcess.toFixed(0)}</p>`
         }
-
-        let totalInvestment = lumpsum + totalSIPInvestment;
-
-        document.getElementById("sipRequired").innerText = "₹" + monthlySIP.toLocaleString() + " per month";
-        document.getElementById("totalInvestment").innerText = "₹" + totalInvestment.toLocaleString();
-        document.getElementById("totalValue").innerText = "₹" + Math.round(finalAmount).toLocaleString();
-
-        if (finalAmount > target) {
-            document.getElementById("shortfallOrExcess").innerHTML = `<strong>Achieved Target!</strong> Excess Amount: <span style="color:green;">₹${Math.round(finalAmount - target).toLocaleString()}</span>`;
-        } else {
-            document.getElementById("shortfallOrExcess").innerHTML = `<strong>Shortfall from Target:</strong> <span style="color:red;">₹${Math.round(target - finalAmount).toLocaleString()}</span>`;
-        }
-
-        document.getElementById("output").style.display = "block";
+      `;
+      resultBox.style.display = 'block';
     }
-</script>
+  </script>
 </body>
 </html>
