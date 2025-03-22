@@ -7,81 +7,118 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: white;
+            background-color: #ffffff;
             margin: 0;
             padding: 0;
         }
+
         .container {
             max-width: 500px;
-            margin: 20px auto;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
-        h1 {
-            text-align: center;
+            margin: 80px auto 20px auto;
+            background: #f7f7f7;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
             position: relative;
         }
+
         .logo {
             position: absolute;
-            right: 0;
-            top: 0;
-            width: 60px;
-            height: 60px;
+            top: 15px;
+            right: 15px;
+            width: 80px;
+            height: auto;
         }
-        input[type="number"], input[type="text"], input[type="range"] {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0 20px 0;
-            box-sizing: border-box;
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
         }
+
         label {
+            display: block;
+            margin-top: 15px;
             font-weight: bold;
         }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .slider-container {
+            margin-top: 15px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .slider-value {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
         button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px;
-            width: 100%;
-            cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         .result {
-            margin-top: 20px;
-            background-color: #f3f3f3;
+            background-color: #ffffcc;
             padding: 15px;
-            border-radius: 6px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-weight: bold;
         }
-        @media (max-width: 600px) {
-            h1 img {
-                width: 40px;
-                height: 40px;
+
+        @media(max-width: 600px) {
+            .logo {
+                width: 60px;
+            }
+            .container {
+                margin: 100px 10px 20px 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Know Your SIP <img src="logo.png" alt="Logo"></h1>
-        <label>Corpus already accumulated (Rs. in Lakhs):</label>
-        <input type="number" id="corpus" placeholder="Example: 10">
+        <img src="Logo.png" class="logo" alt="Logo">
+        <h2>Know Your SIP</h2>
+        <label>Corpus already accumulated (in Lakhs)</label>
+        <input type="number" id="corpus" placeholder="e.g., 10">
 
-        <label>Yearly Step-up Rate of SIP (%):</label>
-        <input type="number" id="stepup" placeholder="Example: 10">
+        <label>Yearly Step-up rate of SIP (%)</label>
+        <input type="number" id="stepup" placeholder="e.g., 10">
 
-        <label>Expected Rate of Return (%): <span id="rateValue">10</span>%</label>
-        <input type="range" min="5" max="20" value="10" id="returnRate" oninput="rateValue.innerText=this.value">
+        <div class="slider-container">
+            <label>Expected Rate of Return (%)</label>
+            <input type="range" min="5" max="20" value="12" id="returnRate" step="0.1" oninput="updateSliderValue()">
+            <div class="slider-value" id="returnRateValue">12%</div>
+        </div>
 
-        <label>Enter Your Goal Amount (in Crores):</label>
-        <input type="number" id="goal" placeholder="Example: 1">
+        <label>Enter your Goal Amount (in Crore)</label>
+        <input type="number" id="goalAmount" placeholder="e.g., 1">
 
-        <label>Expected Time of Goal Completion (in Years):</label>
-        <input type="number" id="years" placeholder="Example: 20">
+        <label>Expected time of Goal completion (in years)</label>
+        <input type="number" id="years" placeholder="e.g., 20">
 
         <button onclick="calculateSIP()">Calculate Monthly SIP Required</button>
 
@@ -89,54 +126,56 @@
     </div>
 
     <script>
+        function updateSliderValue() {
+            document.getElementById('returnRateValue').innerText = document.getElementById('returnRate').value + "%";
+        }
+
         function calculateSIP() {
-            let corpus = parseFloat(document.getElementById('corpus').value) * 100000; 
-            let stepUpRate = parseFloat(document.getElementById('stepup').value) / 100;
-            let returnRate = parseFloat(document.getElementById('returnRate').value) / 100;
-            let goal = parseFloat(document.getElementById('goal').value) * 10000000; 
-            let years = parseFloat(document.getElementById('years').value);
+            let corpus = parseFloat(document.getElementById('corpus').value) * 100000; // in rupees
+            let stepup = parseFloat(document.getElementById('stepup').value) / 100;
+            let r = parseFloat(document.getElementById('returnRate').value) / 1200; // monthly rate
+            let goalAmount = parseFloat(document.getElementById('goalAmount').value) * 10000000; // crore to rupees
+            let n = parseInt(document.getElementById('years').value) * 12; // months
 
-            let monthlyRate = returnRate / 12;
-            let totalMonths = years * 12;
+            let monthlySIP = 0;
+            let diff = 1, increment = 100, attempts = 0;
 
-            // Approx SIP calculation using goal formula with step-up and corpus
-            // This is an approximate iterative solution:
-            let sip = 1000;
-            let achievedGoal = 0;
-            while (achievedGoal < goal) {
-                achievedGoal = corpus;
-                let monthlySIP = sip;
-                for (let year = 1; year <= years; year++) {
-                    for (let month = 1; month <= 12; month++) {
-                        achievedGoal = achievedGoal * (1 + monthlyRate) + monthlySIP;
-                    }
-                    monthlySIP *= (1 + stepUpRate);
+            // Iterative approximation method to solve with step-ups
+            while (diff > 1 && attempts < 5000) {
+                let fv = corpus;
+                let sip = monthlySIP;
+                for (let i = 0; i < n; i++) {
+                    if (i % 12 === 0 && i > 0) sip += sip * stepup;
+                    fv = fv * (1 + r) + sip;
                 }
-                if (achievedGoal < goal) {
-                    sip += 100;
-                }
+                diff = goalAmount - fv;
+                if (diff > 0) monthlySIP += increment;
+                else monthlySIP -= increment / 2;
+                attempts++;
             }
 
-            let totalInvestment = 0;
-            let monthlySIP = sip;
-            for (let year = 1; year <= years; year++) {
-                for (let month = 1; month <= 12; month++) {
-                    totalInvestment += monthlySIP;
-                }
-                monthlySIP *= (1 + stepUpRate);
+            // Final calculations for display:
+            let totalInvestment = 0, fvFinal = corpus, sipAmount = monthlySIP;
+            for (let i = 0; i < n; i++) {
+                if (i % 12 === 0 && i > 0) sipAmount += sipAmount * stepup;
+                totalInvestment += sipAmount;
+                fvFinal = fvFinal * (1 + r) + sipAmount;
             }
 
-            let shortfall = achievedGoal - goal;
-            let status = shortfall >= 0 
-                ? `<strong>Achieved Target</strong> with excess ₹${shortfall.toFixed(0)}`
-                : `<strong>Shortfall from target</strong>: ₹${Math.abs(shortfall).toFixed(0)}`;
-
-            document.getElementById('result').innerHTML = `
-                <p><strong>Monthly SIP Investment required:</strong> ₹${sip.toFixed(0)}</p>
-                <p><strong>Total Investment:</strong> ₹${totalInvestment.toFixed(0)}</p>
-                <p><strong>Total Value at Goal Completion:</strong> ₹${achievedGoal.toFixed(0)}</p>
-                <p>${status}</p>
+            let shortfall = goalAmount - fvFinal;
+            let resultText = `
+                Monthly SIP Required: ₹${Math.round(monthlySIP).toLocaleString()}<br>
+                Total Investment: ₹${Math.round(totalInvestment).toLocaleString()}<br>
+                Total Value: ₹${Math.round(fvFinal).toLocaleString()}<br>
             `;
+
+            if (shortfall > 0) {
+                resultText += `Shortfall from target: ₹${Math.round(shortfall).toLocaleString()}`;
+            } else {
+                resultText += `Achieved Target with Excess: ₹${Math.abs(Math.round(shortfall)).toLocaleString()}`;
+            }
+
+            document.getElementById('result').innerHTML = resultText;
         }
     </script>
 </body>
