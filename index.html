@@ -14,31 +14,30 @@
 
         .container {
             max-width: 500px;
-            margin: 80px auto 20px auto;
-            background: #f7f7f7;
+            margin: 100px auto 30px auto;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            background-color: #ffffff;
             position: relative;
         }
 
         .logo {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 80px;
+            top: 20px;
+            right: 20px;
+            width: 100px;
             height: auto;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 24px;
+            margin-bottom: 40px;
+            font-size: 26px;
         }
 
         label {
             display: block;
-            margin-top: 15px;
+            margin-top: 20px;
             font-weight: bold;
         }
 
@@ -51,23 +50,24 @@
         }
 
         .slider-container {
-            margin-top: 15px;
+            margin-top: 20px;
+        }
+
+        .slider-label-value {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
         input[type="range"] {
             width: 100%;
         }
 
-        .slider-value {
-            text-align: right;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
         button {
             width: 100%;
-            padding: 12px;
-            margin-top: 20px;
+            padding: 14px;
+            margin-top: 25px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -82,18 +82,18 @@
 
         .result {
             background-color: #ffffcc;
-            padding: 15px;
-            margin-top: 20px;
+            padding: 20px;
+            margin-top: 25px;
             border-radius: 5px;
             font-weight: bold;
         }
 
         @media(max-width: 600px) {
             .logo {
-                width: 60px;
+                width: 70px;
             }
             .container {
-                margin: 100px 10px 20px 10px;
+                margin: 120px 10px 30px 10px;
             }
         }
     </style>
@@ -109,9 +109,11 @@
         <input type="number" id="stepup" placeholder="e.g., 10">
 
         <div class="slider-container">
-            <label>Expected Rate of Return (%)</label>
+            <div class="slider-label-value">
+                <span>Expected Rate of Return (%)</span>
+                <span id="returnRateValue">12%</span>
+            </div>
             <input type="range" min="5" max="20" value="12" id="returnRate" step="0.1" oninput="updateSliderValue()">
-            <div class="slider-value" id="returnRateValue">12%</div>
         </div>
 
         <label>Enter your Goal Amount (in Crore)</label>
@@ -140,7 +142,7 @@
             let monthlySIP = 0;
             let diff = 1, increment = 100, attempts = 0;
 
-            // Iterative approximation method to solve with step-ups
+            // Iterative approximation
             while (diff > 1 && attempts < 5000) {
                 let fv = corpus;
                 let sip = monthlySIP;
@@ -154,7 +156,7 @@
                 attempts++;
             }
 
-            // Final calculations for display:
+            // Final calculation
             let totalInvestment = 0, fvFinal = corpus, sipAmount = monthlySIP;
             for (let i = 0; i < n; i++) {
                 if (i % 12 === 0 && i > 0) sipAmount += sipAmount * stepup;
